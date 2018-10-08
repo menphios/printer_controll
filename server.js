@@ -1,75 +1,35 @@
 var express = require('express');
-var app = express(); 
-var server = require('http').createServer(app); 
+var app = express();
+var server = require('http').createServer(app);
 var io = require('socket.io')(server);
-var mariadb = require('mariadb'); 
-const pool = mariadb.createPool({host: 'localhost', user: 'root', password: 'makerspace', connectionLimit: 5, database: 'makerspace'}); 
-const mfrc522 = require("./index.js"); 
-mfrc522.initWiringPi(0); 
+var mariadb = require('mariadb');
+var debug = require('debug');
+var EventEmitter = require('events').EventEmitter;
+var system = new EventEmitter();
+const pool = mariadb.createPool({host: 'localhost', user: 'root', password: 'makerspace', connectionLimit: 5, database: 'makerspace'});
 
-app.use(express.static(__dirname + '/public')); 
+//Webserveren bruker filene som ligger i public, html/css o.l.
+app.use(express.static(__dirname + '/public'));
 
+//Når en klient går inn på webserveren sendes index.html,
+//Enten dette er ip-adresse:port eller en web-adresse (DNS)
 app.get('/', function(req, res, next){
 res.sendFile(__dirname + '/public/index.html');
 });
 
-
-
+//Når en klient har koblet seg til webserveren skjer dette:
 io.on('connect', function(socket){
-console.log("Client connected"); 
+console.log("Client connected");
 
-setInterval(function(){
-	mfrc522.reset(); 
-
-
-let response = mfrc522.findCard(); 
-
-if(!response.status){
-console.log("No Card");
-return; 
-}
-
-
-response = mfrc522.getUid();
-if(!response.status){
-console.log("UID Scan Error"); 
-return; 
-}
-const uid = response.data;
-const id = uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16) +uid[3].toString(16);
-
-if(uid !== null) {
-pool.getConnection()
-	.then(conn => {
-	conn.query("SELECT f_name from users where UID = ?", [id])
-	.then((res) => {
-	console.log(res[0].f_name); 
-	conn.end(); 
-	})
-	.catch(err=>{
-	console.log("Error: " + err);  
-})
-
-});
-}
- 
-socket.emit('UID', uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16) +uid[3].toString(16)); 
-//console.log(uid[0].toString(16));  
-
-mfrc522.stopCrypto();
-
-
-
-
-},500); 
-
-
+//Når rfid-en har lest av en verdi sendes UID ut på hele systemet:
+//I server.js betyr det at den skal sende dette til nettsiden i dette tilfellet:
+	system.on('UID', function(data){
+		socket.emit('UID', data);
+	});
 
 });
 
+//Serveren starter på port 3000 og IP-adressen til RPI-en:
 server.listen(3000, function(){
 console.log("Listening on port 3000");
 });
-
-
-
