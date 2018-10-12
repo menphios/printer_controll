@@ -1,6 +1,6 @@
 var debug = require("debug")("rfid");
 var util = require('util');
-const mfrc522 = require("./index.js");
+const mfrc522 = require("./node_modules/mfrc522-rpi/index.js");
 mfrc522.initWiringPi(0); //Kobler opp RFID-leseren på SPI-pinnene
 
 //En ny rfid starter opp i det serveren starter;
