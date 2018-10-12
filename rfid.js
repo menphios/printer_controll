@@ -25,7 +25,7 @@ function rfid(system) {
   	}
   	const uid = response.data;
   	const id = uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16) +uid[3].toString(16);
-
+/*
   	if(uid !== null) {
   		pool.getConnection()
   			.then(conn => {
@@ -39,6 +39,7 @@ function rfid(system) {
   			})
   		});
   	}
+    */
   	//Serveren sender meldingen UID, med verdiene:
   	system.emit('UID', uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16) +uid[3].toString(16));
   	mfrc522.stopCrypto();
