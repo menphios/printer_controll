@@ -6,6 +6,7 @@ var mariadb = require('mariadb');
 var debug = require('debug');
 var EventEmitter = require('events').EventEmitter;
 var system = new EventEmitter();
+var rfid = require('./rfid')(system); 
 const pool = mariadb.createPool({host: 'localhost', user: 'root', password: 'makerspace', connectionLimit: 5, database: 'makerspace'});
 
 //Webserveren bruker filene som ligger i public, html/css o.l.
