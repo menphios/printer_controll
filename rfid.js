@@ -25,6 +25,10 @@ function rfid(system) {
   	}
   	const uid = response.data;
   	const id = uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16) +uid[3].toString(16);
+
+    /*Teste ut SELECT f_name, l_name, studentid from users where UID = ?, [id], når databasen er oppe å går.
+    Det vil da bli at man skriver: system.emit('UID', f_name, l_name, studentid) og sender dette til server.js. 
+    */
 /*
   	if(uid !== null) {
   		pool.getConnection()
